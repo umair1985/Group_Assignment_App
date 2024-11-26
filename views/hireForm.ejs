@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hire Form</title>
+    <link rel="stylesheet" href="/hiringForm.css" />
+  </head>
+  <body>
+    <h2 style="text-align: center">Staff Hiring Form</h2>
+    <form action="/hire" method="POST">
+      <input type="text" name="fname" placeholder="First Name" required />
+      <input type="text" name="lname" placeholder="Last Name" required />
+      <input type="text" name="position" placeholder="Position" required />
+      <input
+        type="text"
+        name="branchno"
+        placeholder="Branch Number (B###)"
+        required
+      />
+      <input
+        type="date"
+        name="dob"
+        placeholder="Date of Birth (yy-mm-dd)"
+        required
+      />
+      <input type="number" name="salary" placeholder="Salary" required />
+      <input
+        type="text"
+        name="telephone"
+        placeholder="Telephone (******)"
+        pattern="\d{6}"
+        required
+      />
+      <input
+        type="text"
+        name="mobile"
+        placeholder="Mobile (***** *****)"
+        pattern="\d{5} \d{5}"
+        required
+      />
+      <input type="text" name="email" placeholder="Email" required />
+      <button type="reset" class="cancel">Cancel</button>
+      <button type="submit" class="hire">Hire</button>
+    </form>
+  </body>
+</html>

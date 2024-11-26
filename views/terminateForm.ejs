@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Termination Form</title>
+    <style>
+      body {
+        background-color: #00aeef;
+        font-family: Arial, sans-serif;
+      }
+      form {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: inline-block;
+      }
+      select,
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .button-group {
+        text-align: right;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 10px 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .add {
+        background-color: blue;
+        color: white;
+      }
+      .submit {
+        background-color: green;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="terminateForm">
+      <h2>Staff Termination Form</h2>
+      <label for="staffno">Add a staff member to terminate:</label>
+      <select id="staffno" name="staffno">
+        <% staffList.forEach(staff => { %>
+        <option value="<%= staff.STAFFNO %>"><%= staff.STAFFNO %></option>
+        <% }) %>
+      </select>
+
+      <div class="button-group">
+        <button type="button" class="add" onclick="addToTable()">Add</button>
+        <button type="submit" class="submit">Submit</button>
+      </div>
+
+      <table id="terminateTable">
+        <thead>
+          <tr>
+            <th>Staff Num</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows dynamically added here -->
+        </tbody>
+      </table>
+    </form>
+
+    <script>
+      function addToTable() {
+        const staffno = document.getElementById("staffno").value;
+
+        if (!staffno) {
+          alert("Please select a staff number.");
+          return;
+        }
+
+        fetch(`/api/staff/${staffno}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const tableBody = document
+              .getElementById("terminateTable")
+              .querySelector("tbody");
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                        <td>${staffno}</td>
+                        <td>${data.FNAME} ${data.LNAME}</td>
+                    `;
+
+            tableBody.appendChild(row);
+          })
+          .catch((err) => console.error("Error fetching staff data:", err));
+      }
+    </script>
+  </body>
+</html>

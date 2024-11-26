@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staff Update Form</title>
+    <style>
+      body {
+        background-color: #00aeef;
+        font-family: Arial, sans-serif;
+      }
+      form {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      label {
+        font-size: 14px;
+        margin-bottom: 5px;
+        display: inline-block;
+      }
+      select,
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .button-group {
+        text-align: right;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 10px 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .add {
+        background-color: blue;
+        color: white;
+      }
+      .submit {
+        background-color: green;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="updateForm">
+      <h2>Staff Update Form</h2>
+      <label for="staffno">Add staff member to update the information:</label>
+      <select id="staffno" name="staffno">
+        <% staffList.forEach(staff => { %>
+        <option value="<%= staff.STAFFNO %>"><%= staff.STAFFNO %></option>
+        <% }) %>
+      </select>
+
+      <label>What do you need to update: Email, Salary, Phone?</label>
+      <input type="text" id="email" name="email" placeholder="Email" />
+      <input type="number" id="salary" name="salary" placeholder="Salary" />
+      <input
+        type="text"
+        id="telephone"
+        name="telephone"
+        placeholder="Telephone"
+      />
+
+      <div class="button-group">
+        <button type="button" class="add" onclick="addToTable()">Add</button>
+        <button type="submit" class="submit">Submit</button>
+      </div>
+
+      <table id="updateTable">
+        <thead>
+          <tr>
+            <th>Staff Num</th>
+            <th>Name</th>
+            <th>Salary</th>
+            <th>Telephone</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows dynamically added here -->
+        </tbody>
+      </table>
+    </form>
+
+    <script>
+      function addToTable() {
+        const staffno = document.getElementById("staffno").value;
+        const email = document.getElementById("email").value;
+        const salary = document.getElementById("salary").value;
+        const telephone = document.getElementById("telephone").value;
+
+        if (!staffno || (!email && !salary && !telephone)) {
+          alert(
+            "Please select a staff number and provide at least one update value."
+          );
+          return;
+        }
+
+        fetch(`/api/staff/${staffno}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const tableBody = document
+              .getElementById("updateTable")
+              .querySelector("tbody");
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                        <td>${staffno}</td>
+                        <td>${data.FNAME} ${data.LNAME}</td>
+                        <td>${salary || "N/A"}</td>
+                        <td>${telephone || "N/A"}</td>
+                        <td>${email || "N/A"}</td>
+                    `;
+
+            tableBody.appendChild(row);
+
+            // Clear input fields
+            document.getElementById("email").value = "";
+            document.getElementById("salary").value = "";
+            document.getElementById("telephone").value = "";
+          })
+          .catch((err) => console.error("Error fetching staff data:", err));
+      }
+    </script>
+  </body>
+</html>

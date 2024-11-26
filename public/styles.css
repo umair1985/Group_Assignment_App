@@ -1,0 +1,38 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+}
+
+table {
+  width: 50%;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+td,
+th {
+  padding: 10px;
+  text-align: center;
+}
+
+form {
+  width: 50%;
+  margin: 20px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+label,
+input,
+button {
+  margin: 5px 0;
+}

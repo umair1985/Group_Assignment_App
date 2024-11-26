@@ -1,0 +1,39 @@
+body {
+  background-color: #00aeef;
+  font-family: Arial, sans-serif;
+  color: black;
+}
+form {
+  width: 50%;
+  margin: auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+  width: calc(100% - 20px);
+  margin-bottom: 15px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.cancel {
+  background-color: red;
+  color: white;
+}
+.hire {
+  background-color: green;
+  color: white;
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Update Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #00aaff;
+        color: black;
+        text-align: center;
+      }
+
+      .container {
+        margin-top: 20px;
+      }
+
+      h1,
+      h2 {
+        margin-bottom: 20px;
+      }
+
+      form {
+        display: inline-block;
+        text-align: left;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      label,
+      input,
+      select {
+        display: block;
+        margin: 10px 0;
+        width: 100%;
+      }
+
+      table {
+        width: 80%;
+        margin: 20px auto;
+        background-color: white;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        text-align: center;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+    >
+    <script>
+      async function addClientUpdate() {
+        const clientno = document.getElementById("clientno").value;
+        const telno = document.getElementById("telno").value || null;
+        const street = document.getElementById("street").value || null;
+        const city = document.getElementById("city").value || null;
+        const email = document.getElementById("email").value || null;
+
+        const response = await fetch("/addClientUpdate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clientno, telno, street, city, email }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const table = document.getElementById("clientTable");
+          const row = table.insertRow(-1);
+
+          row.insertCell(0).innerText = data.clientno;
+          row.insertCell(1).innerText = data.name;
+          row.insertCell(2).innerText = data.telno || "N/A";
+          row.insertCell(3).innerText = data.street || "N/A";
+          row.insertCell(4).innerText = data.city || "N/A";
+          row.insertCell(5).innerText = data.email || "N/A";
+
+          document.getElementById("updateForm").reset();
+        } else {
+          alert(
+            "Error updating client. Please check the details and try again."
+          );
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Client Update Form</h1>
+      <form
+        id="updateForm"
+        onsubmit="event.preventDefault(); addClientUpdate();"
+      >
+        <label for="clientno"
+          >Add Client Number(s) to update information:</label
+        >
+        <select id="clientno" required>
+          <% clients.forEach(client => { %>
+          <option value="<%= client %>"><%= client %></option>
+          <% }); %></select
+        ><br />
+
+        <label for="telno">Telephone Number:</label>
+        <input type="text" id="telno" /><br />
+
+        <label for="street">Street:</label>
+        <input type="text" id="street" /><br />
+
+        <label for="city">City:</label>
+        <input type="text" id="city" /><br />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" /><br />
+
+        <button type="submit" class="button-submit">Add</button>
+      </form>
+
+      <h2>Client Information</h2>
+      <table id="clientTable" border="1">
+        <thead>
+          <tr>
+            <th>Client Num</th>
+            <th>Name</th>
+            <th>Telephone Num</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows added dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
