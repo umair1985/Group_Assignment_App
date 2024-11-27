@@ -8,19 +8,26 @@
   </head>
   <body>
     <h2 style="text-align: center">Staff Hiring Form</h2>
-    <form action="/hire" method="POST">
-      <input type="text" name="fname" placeholder="First Name" required />
-      <input type="text" name="lname" placeholder="Last Name" required />
-      <input type="text" name="position" placeholder="Position" required />
+    <form id="hiringForm">
+      <input type="text" id="fname" name="fname" placeholder="First Name" required />
+      <input type="text" id="lname" name="lname" placeholder="Last Name" required />
+      <input type="text" id="position" name="position" placeholder="Position" required />
+      <label for="sex">Sex:</label>
+      <select id="sex" name="sex" required>
+          <option value="M">Male</option>
+          <option value="F">Female</option>
+      </select><br><br>
       <input
         type="text"
         name="branchno"
+        id="branchno"
         placeholder="Branch Number (B###)"
         required
       />
       <input
         type="date"
         name="dob"
+        id="dob"
         placeholder="Date of Birth (yy-mm-dd)"
         required
       />
@@ -28,6 +35,7 @@
       <input
         type="text"
         name="telephone"
+        id="telephone"
         placeholder="Telephone (******)"
         pattern="\d{6}"
         required
@@ -35,13 +43,48 @@
       <input
         type="text"
         name="mobile"
+        id="mobile"
         placeholder="Mobile (***** *****)"
         pattern="\d{5} \d{5}"
         required
       />
-      <input type="text" name="email" placeholder="Email" required />
+      <input type="text" id="email" name="email" placeholder="Email" required />
       <button type="reset" class="cancel">Cancel</button>
       <button type="submit" class="hire">Hire</button>
     </form>
+    <script>
+      document.getElementById('hiringForm').addEventListener('submit', async function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          const formData = new FormData(event.target);
+          const data = Array.from(formData.entries()).reduce((acc, [key, value]) => {
+              acc[key] = value;
+              return acc;
+          }, {});
+
+          // Convert to JSON string
+          const jsonString = JSON.stringify(data);
+          try {
+              // Send POST request to the server
+              const response = await fetch('/hire', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: jsonString
+              });
+
+              const result = await response.json();
+
+              // Display popup message
+              if (result.success) {
+                  alert(result.message);
+              } else {
+                  alert('Error: ' + result.message);
+              }
+          } catch (error) {
+              console.error('Error submitting form:', error);
+              alert('An unexpected error occurred. Please try again.');
+          }
+      });
+  </script>
   </body>
 </html>

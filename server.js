@@ -7,7 +7,7 @@ const app = express();
 app.use(express.static("public"));
 
 // Middleware
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.set("view engine", "ejs");
 
 // Database Connection Setup
@@ -70,6 +70,38 @@ app.get("/update", async (req, res) => {
   }
 });
 
+// POST endpoint to update staff information
+app.post('/update', async (req, res) => {
+  const { staffno, email, salary, telephone } = req.body;
+
+  if (!staffno) {
+      return res.status(400).json({ success: false, message: 'Staff number is required' });
+  }
+
+  try {
+      const connection = await oracledb.getConnection(dbConfig);
+
+      const result = await connection.execute(
+          `BEGIN 
+              update_staff_sp(:p_staffno,:p_email,:p_salary,:p_telephone); 
+          END;`,
+          {
+              p_staffno: staffno,
+              p_email: email || null,
+              p_salary: salary || null,
+              p_telephone: telephone || null
+          }
+      );
+      await connection.close();
+
+      res.json({ success: true, message: 'Staff information updated successfully' });
+
+  } catch (error) {
+      console.error('Error executing procedure:', error);
+      res.status(500).json({ success: false, message: 'Error updating staff information' });
+  }
+});
+
 // API route to fetch staff details
 app.get("/api/staff/:staffno", async (req, res) => {
   const { staffno } = req.params;
@@ -104,6 +136,44 @@ app.get("/hire", (req, res) => {
   res.render("hireForm");
 });
 
+//POST hire
+app.post('/hire', async (req, res) => {
+  const { fname, lname, position, sex, branchno, dob, salary, telephone, mobile, email } = req.body;
+
+  if (!fname || !lname || !position || !sex || !dob || !salary || !branchno || !email) {
+    return res.status(400).json({ success: false, message: 'All fields are required!' });
+  }
+
+  try {
+      const connection = await oracledb.getConnection(dbConfig);
+
+      await connection.execute(
+          `BEGIN staff_hire_sp(:fname, :lname, :position, :sex, TO_DATE(:dob, 'YYYY-MM-DD'), :salary, :branchno, :telephone, :mobile, :email); END;`,
+          {
+              fname: fname,
+              lname: lname,
+              position: position,
+              sex: sex,
+              dob: dob,
+              salary: salary,
+              branchno: branchno,
+              telephone: telephone,
+              mobile: mobile,
+              email: email
+          }
+      );
+      await connection.close();
+
+      res.json({ success: true, message: 'New staff member hired successfully!' });
+  } catch (error) {
+      console.error('Error executing procedure:', error);
+
+      // Send error response
+      res.status(500).send('Error hiring staff member.');
+  }
+});
+
+
 // Route to render the termination form
 app.get("/terminate", async (req, res) => {
   let connection;
@@ -119,6 +189,35 @@ app.get("/terminate", async (req, res) => {
     if (connection) {
       await connection.close();
     }
+  }
+});
+
+// DELETE endpoint to terminate a staff member
+app.delete('/terminate/:staffno', async (req, res) => {
+  const { staffno } = req.params;
+
+  if (!staffno) {
+      return res.status(400).json({ success: false, message: 'Staff number is required' });
+  }
+
+  try {
+      const connection = await oracledb.getConnection(dbConfig);
+      const result = await connection.execute(
+          `DELETE FROM DH_STAFF WHERE STAFFNO = :staffno`,
+          [staffno],
+          { autoCommit: true }
+      );
+      await connection.close();
+
+      if (result.rowsAffected === 0) {
+          return res.status(404).json({ success: false, message: 'Staff member not found' });
+      }
+
+      res.json({ success: true, message: 'Staff member terminated successfully' });
+
+  } catch (error) {
+      console.error('Error deleting staff member:', error);
+      res.status(500).json({ success: false, message: 'Error terminating staff member' });
   }
 });
 
