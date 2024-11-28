@@ -1,169 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Branch Address</title>
-    <style>
-      body {
-        background-color: #00aeef;
-        font-family: Arial, sans-serif;
-        color: black;
-      }
-      form {
-        width: 70%;
-        margin: auto;
-        padding: 20px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-      }
-      h2 {
-        text-align: center;
-        margin-bottom: 20px;
-      }
-      label {
-        font-size: 14px;
-        margin-bottom: 5px;
-        display: inline-block;
-      }
-      select,
-      input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 14px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid black;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 8px;
-      }
-      th {
-        background-color: #f2f2f2;
-      }
-      .button-group {
-        text-align: center;
-      }
-      button {
-        padding: 10px 20px;
-        font-size: 14px;
-        margin: 10px 5px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .show-info {
-        background-color: yellow;
-        color: black;
-      }
-      .submit {
-        background-color: green;
-        color: white;
-      }
-    </style>
-  </head>
-  <body>
-    <form id="branchForm" action="/branch/submit" method="POST">
-      <h2>Identify Branch Address</h2>
-      <label for="branchno">Branch Number:</label>
-      <select id="branchno" name="branchno">
-        <% branchList.forEach(branch => { %>
-        <option value="<%= branch.BRANCHNO %>"><%= branch.BRANCHNO %></option>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update Branch Address</title>
+  <style>
+    body {
+      background-color: #00aeef;
+      font-family: Arial, sans-serif;
+      color: black;
+    }
+
+    form {
+      width: 70%;
+      margin: auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 5px;
+      display: inline-block;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 8px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .button-group {
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .show-info {
+      background-color: yellow;
+      color: black;
+    }
+
+    .submit {
+      background-color: green;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="branchForm">
+    <h2>Identify Branch Address</h2>
+    <label for="branchno">Branch Number:</label>
+    <select id="branchno" name="branchno">
+      <% branchList.forEach(branch=> { %>
+        <option value="<%= branch.BRANCHNO %>">
+          <%= branch.BRANCHNO %>
+        </option>
         <% }) %>
-      </select>
+    </select>
+
+    <div class="button-group">
+      <button type="button" class="show-info" onclick="showInformation()">
+        Show Information
+      </button>
+    </div>
+
+    <table id="branchTable" style="display: none">
+      <thead>
+        <tr>
+          <th>Branch Number</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="selectedBranch"></td>
+          <td id="selectedAddress"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="updateOption" style="display: none">
+      <label for="updateOptionInput">Would you like to update Branch Address? Type "Y" to update, Type "N"
+        to discontinue:</label>
+      <input type="text" id="updateOptionInput" onkeyup="handleUpdateOption(event)" />
+    </div>
+
+    <div id="updateFields" style="display: none">
+      <label for="newStreet">New Street:</label>
+      <input type="text" id="newStreet" name="newStreet" />
+
+      <label for="newCity">New City:</label>
+      <input type="text" id="newCity" name="newCity" />
+
+      <label for="newPostcode">New Postcode:</label>
+      <input type="text" id="newPostcode" name="newPostcode" />
 
       <div class="button-group">
-        <button type="button" class="show-info" onclick="showInformation()">
-          Show Information
-        </button>
+        <button type="submit" class="submit">Submit</button>
       </div>
+    </div>
+  </form>
 
-      <table id="branchTable" style="display: none">
-        <thead>
-          <tr>
-            <th>Branch Number</th>
-            <th>Address</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td id="selectedBranch"></td>
-            <td id="selectedAddress"></td>
-          </tr>
-        </tbody>
-      </table>
+  <script>
+    function showInformation() {
+      const branchno = document.getElementById("branchno").value;
 
-      <div id="updateOption" style="display: none">
-        <label for="updateOptionInput"
-          >Would you like to update Branch Address? Type "Y" to update, Type "N"
-          to discontinue:</label
-        >
-        <input
-          type="text"
-          id="updateOptionInput"
-          onkeyup="handleUpdateOption(event)"
-        />
-      </div>
-
-      <div id="updateFields" style="display: none">
-        <label for="newStreet">New Street:</label>
-        <input type="text" id="newStreet" name="newStreet" />
-
-        <label for="newCity">New City:</label>
-        <input type="text" id="newCity" name="newCity" />
-
-        <label for="newPostcode">New Postcode:</label>
-        <input type="text" id="newPostcode" name="newPostcode" />
-
-        <div class="button-group">
-          <button type="submit" class="submit">Submit</button>
-        </div>
-      </div>
-    </form>
-
-    <script>
-      function showInformation() {
-        const branchno = document.getElementById("branchno").value;
-
-        if (!branchno) {
-          alert("Please select a branch number.");
-          return;
-        }
-
-        fetch(`/api/branch/${branchno}`)
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById("branchTable").style.display = "table";
-            document.getElementById("selectedBranch").innerText = branchno;
-            document.getElementById(
-              "selectedAddress"
-            ).innerText = `${data.STREET}, ${data.CITY}, ${data.POSTCODE}`;
-            document.getElementById("updateOption").style.display = "block";
-          })
-          .catch((err) => console.error("Error fetching branch data:", err));
+      if (!branchno) {
+        alert("Please select a branch number.");
+        return;
       }
 
-      function handleUpdateOption(event) {
-        const value = event.target.value.trim().toUpperCase();
-        if (value === "Y") {
-          document.getElementById("updateFields").style.display = "block";
-        } else if (value === "N") {
-          document.getElementById("updateFields").style.display = "none";
-        }
+      fetch(`/api/branch/${branchno}`)
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("branchTable").style.display = "table";
+          document.getElementById("selectedBranch").innerText = branchno;
+          document.getElementById(
+            "selectedAddress"
+          ).innerText = `${data.STREET}, ${data.CITY}, ${data.POSTCODE}`;
+          document.getElementById("updateOption").style.display = "block";
+        })
+        .catch((err) => console.error("Error fetching branch data:", err));
+    }
+
+    function handleUpdateOption(event) {
+      const value = event.target.value.trim().toUpperCase();
+      if (value === "Y") {
+        document.getElementById("updateFields").style.display = "block";
+      } else if (value === "N") {
+        document.getElementById("updateFields").style.display = "none";
       }
-    </script>
-  </body>
+    }
+
+    document.getElementById('branchForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const data = {};
+
+      formData.forEach((value, key) => {
+        if (key==="branchno" || key==="newPostcode" || key==="newCity" || key==="newStreet"){
+          data[key] = value;
+        }
+      });
+
+      try {
+        const response = await fetch('/branch/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert(result.message);
+        } else {
+          alert(result.message);
+        }
+        window.location.reload();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+      }
+    });
+  </script>
+</body>
+
 </html>

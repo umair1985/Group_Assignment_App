@@ -250,6 +250,46 @@ app.get("/api/staff/:staffno", async (req, res) => {
   }
 });
 
+// Branch Menu Route
+app.get("/branchMenu", (req, res) => {
+  res.render("branchMenu");
+});
+
+app.get("/createBranch", (req, res) => {
+  res.render("createBranch");
+});
+
+//POST hire
+app.post('/createBranch', async (req, res) => {
+  const { branchno, street, city, postcode} = req.body;
+
+  if (!branchno || !street || !city || !postcode) {
+    return res.status(400).json({ success: false, message: 'All fields are required!' });
+  }
+
+  try {
+      const connection = await oracledb.getConnection(dbConfig);
+
+      await connection.execute(
+          `BEGIN create_branch_sp(:branchno, :street, :city, :postcode); END;`,
+          {
+            branchno: branchno,
+            street: street,
+            city: city,
+            postcode: postcode
+          }
+      );
+      await connection.close();
+
+      res.json({ success: true, message: 'New branch added successfully!' });
+  } catch (error) {
+      console.error('Error executing procedure:', error);
+
+      // Send error response
+      res.status(500).send('Error creating branch.');
+  }
+});
+
 // Route to render the branch form
 app.get("/branch", async (req, res) => {
   let connection;
@@ -299,51 +339,34 @@ app.get("/api/branch/:branchno", async (req, res) => {
   }
 });
 
-// Route to render the branch update form
-app.get("/branch", async (req, res) => {
-  let connection;
-  try {
-    connection = await oracledb.getConnection(dbConfig);
-    const result = await connection.execute(`SELECT BRANCHNO FROM dh_branch`);
-    const branchList = result.rows.map((row) => ({ BRANCHNO: row[0] }));
-    res.render("updateBranch", { branchList });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving branch data.");
-  } finally {
-    if (connection) {
-      await connection.close();
-    }
-  }
-});
+app.put('/branch/update', async (req, res) => {
+  const { branchno, newStreet, newPostcode, newCity } = req.body;
 
-// API route to fetch branch details
-app.get("/api/branch/:branchno", async (req, res) => {
-  const { branchno } = req.params;
-  let connection;
+  if (!branchno) {
+      return res.status(400).json({ success: false, message: 'Branch number is required' });
+  }
+
   try {
-    connection = await oracledb.getConnection(dbConfig);
-    const result = await connection.execute(
-      `SELECT STREET, CITY, POSTCODE FROM dh_branch WHERE BRANCHNO = :branchno`,
-      [branchno]
-    );
-    if (result.rows.length > 0) {
-      const branch = {
-        STREET: result.rows[0][0],
-        CITY: result.rows[0][1],
-        POSTCODE: result.rows[0][2],
-      };
-      res.json(branch);
-    } else {
-      res.status(404).send("Branch not found.");
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error retrieving branch data.");
-  } finally {
-    if (connection) {
+      const connection = await oracledb.getConnection(dbConfig);
+
+      const result = await connection.execute(
+          `BEGIN 
+              update_branch_sp(:p_branchno, :p_street, :p_city, :p_postcode); 
+          END;`,
+          {
+            p_branchno: branchno,
+            p_city: newCity || null,
+            p_street: newStreet || null,
+            p_postcode: newPostcode || null
+          }
+      );
       await connection.close();
-    }
+
+      res.json({ success: true, message: 'Branch information updated successfully' });
+
+  } catch (error) {
+      console.error('Error executing procedure:', error);
+      res.status(500).json({ success: false, message: 'Error updating branch information' });
   }
 });
 

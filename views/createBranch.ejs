@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hire Form</title>
+    <link rel="stylesheet" href="/hiringForm.css" />
+  </head>
+  <body>
+    <h2 style="text-align: center">Staff Hiring Form</h2>
+    <form id="branchForm">
+      <input type="text" id="branchno" name="branchno" placeholder="Branch Number" required />
+      <input type="text" id="street" name="street" placeholder="Street Address" required />
+      <input type="text" id="city" name="city" placeholder="City" required />
+      <input type="text" id="postcode" name="postcode" placeholder="Postal Code" required />
+      <button type="reset" class="cancel">Cancel</button>
+      <button type="submit" class="hire">Create</button>
+    </form>
+    <script>
+      document.getElementById('branchForm').addEventListener('submit', async function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          const formData = new FormData(event.target);
+          const data = Array.from(formData.entries()).reduce((acc, [key, value]) => {
+              acc[key] = value;
+              return acc;
+          }, {});
+
+          const jsonString = JSON.stringify(data);
+          try {
+              const response = await fetch('/createBranch', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: jsonString
+              });
+
+              const result = await response.json();
+
+              // Display popup message
+              if (result.success) {
+                  alert(result.message);
+              } else {
+                  alert('Error: ' + result.message);
+              }
+          } catch (error) {
+              console.error('Error submitting form:', error);
+              alert('An unexpected error occurred. Please try again.');
+          }
+      });
+  </script>
+  </body>
+</html>
