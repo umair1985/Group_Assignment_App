@@ -61,7 +61,10 @@
   <body>
     <div class="container">
       <h1>Client Setup Form</h1>
-      <form action="/submitNewClient" method="POST">
+      <form id="clientForm">
+        <label>Client Number:</label>
+        <input type="text" name="clientno" required /><br />
+
         <label>First Name:</label>
         <input type="text" name="fname" required /><br />
 
@@ -100,5 +103,34 @@
         </button>
       </form>
     </div>
+    <script>
+      document.getElementById('clientForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+  
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+  
+        try {
+          const response = await fetch('/submitNewClient', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+  
+          const result = await response.json();
+  
+          if (result.success) {
+            alert('Client data submitted successfully!');
+          } else {
+            alert('Failed to submit client data: ' + result.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while submitting client data.');
+        }
+      });
+    </script>
   </body>
 </html>

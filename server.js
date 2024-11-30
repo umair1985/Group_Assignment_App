@@ -29,16 +29,6 @@ async function connectToDB() {
     throw err;
   }
 }
-// // Sample route to test DB connection
-// app.get("/", async (req, res) => {
-//   try {
-//     const connection = await connectToDB(); // Ensure DB connection works
-//     res.send("Connected to Oracle DB successfully!");
-//     connection.close();
-//   } catch (err) {
-//     res.status(500).send("Failed to connect to Oracle DB");
-//   }
-// });
 
 // Home Page
 app.get("/", (req, res) => {
@@ -72,35 +62,51 @@ app.get("/update", async (req, res) => {
 
 // POST endpoint to update staff information
 app.post('/update', async (req, res) => {
-  const { staffno, email, salary, telephone } = req.body;
-
-  if (!staffno) {
-      return res.status(400).json({ success: false, message: 'Staff number is required' });
-  }
+  const staffs = req.body;
 
   try {
-      const connection = await oracledb.getConnection(dbConfig);
-
-      const result = await connection.execute(
-          `BEGIN 
-              update_staff_sp(:p_staffno,:p_email,:p_salary,:p_telephone); 
-          END;`,
-          {
-              p_staffno: staffno,
-              p_email: email || null,
-              p_salary: salary || null,
-              p_telephone: telephone || null
-          }
-      );
-      await connection.close();
-
-      res.json({ success: true, message: 'Staff information updated successfully' });
-
+    for (const staff of staffs) {
+      await updateStaff(staff);
+    }
+    res.json({ success: true, message: 'All staff updated successfully' });
   } catch (error) {
-      console.error('Error executing procedure:', error);
-      res.status(500).json({ success: false, message: 'Error updating staff information' });
+    console.error('Error updating staff:', error);
+    res.json({ success: false, message: 'Error updating staff' });
   }
 });
+
+async function updateStaff(staff) {
+  const { staffNum, email, salary, telephone } = staff;
+  console.log(staffNum, email, salary, telephone);
+  const query = `
+    BEGIN
+      update_staff_sp(:v_staffno, :v_email, :v_salary, :v_telephone);
+    END;
+  `;
+
+  const binds = {
+    v_staffno: staffNum,
+    v_email: email,
+    v_salary: salary,
+    v_telephone: telephone
+  };
+  
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    console.log(`Updating staff: ${JSON.stringify(staff)}`);
+    await connection.execute(query, binds);
+    console.log(`Successfully updated staff: ${staffNum}`);
+  } catch (error) {
+    console.error(`Error updating staff: ${staffNum}`, error);
+  } finally {
+    if (connection) {
+      await connection.close();
+    }
+  }
+  
+}
+
 
 // API route to fetch staff details
 app.get("/api/staff/:staffno", async (req, res) => {
@@ -402,18 +408,18 @@ app.get("/newClient", async (req, res) => {
 
 // Handle form submission
 app.post("/submitNewClient", async (req, res) => {
-  const { fname, lname, telno, street, city, email, preftype, maxrent } =
-    req.body;
+  const { clientno, fname, lname, telno, street, city, email, preftype, maxrent } = req.body;
+  
   let connection;
   try {
     connection = await oracledb.getConnection(dbConfig);
     await connection.execute(
-      `INSERT INTO DH_CLIENT (FNAME, LNAME, TELNO, STREET, CITY, EMAIL, PREFTYPE, MAXRENT) 
-       VALUES (:fname, :lname, :telno, :street, :city, :email, :preftype, :maxrent)`,
-      { fname, lname, telno, street, city, email, preftype, maxrent },
+      `INSERT INTO DH_CLIENT (CLIENTNO, FNAME, LNAME, TELNO, STREET, CITY, EMAIL, PREFTYPE, MAXRENT) 
+       VALUES (:clientno, :fname, :lname, :telno, :street, :city, :email, :preftype, :maxrent)`,
+      { clientno, fname, lname, telno, street, city, email, preftype, maxrent },
       { autoCommit: true }
     );
-    res.send("Client registered successfully!");
+    res.json({ success: true, message: "Client registered successfully!"});
   } catch (err) {
     console.error(err);
     res.status(500).send("Error saving client data");
@@ -504,56 +510,54 @@ app.get("/updateClient", async (req, res) => {
   }
 });
 
-// API endpoint to fetch client details and return updated row
-app.post("/addClientUpdate", async (req, res) => {
-  const { clientno, telno, street, city, email } = req.body;
-  let connection;
-
+//API endpoint to update client details
+app.put('/updateClient', async (req, res) => {
+  const clients = req.body;
+  console.log(clients);
   try {
-    connection = await oracledb.getConnection(dbConfig);
-
-    // Fetch client name based on clientno
-    const clientData = await connection.execute(
-      `SELECT FNAME, LNAME FROM DH_CLIENT WHERE CLIENTNO = :clientno`,
-      [clientno]
-    );
-
-    if (clientData.rows.length === 0) {
-      return res.status(404).send("Client not found");
+    for (const client of clients) {
+      await updateClient(client);
     }
-
-    const fname = clientData.rows[0][0];
-    const lname = clientData.rows[0][1];
-    const name = `${fname} ${lname}`;
-
-    // Update the client's data in the database (conditionally update fields)
-    await connection.execute(
-      `
-      UPDATE DH_CLIENT 
-      SET TELNO = NVL(:telno, TELNO),
-          STREET = NVL(:street, STREET),
-          CITY = NVL(:city, CITY),
-          EMAIL = NVL(:email, EMAIL)
-      WHERE CLIENTNO = :clientno
-      `,
-      { telno, street, city, email, clientno },
-      { autoCommit: true }
-    );
-
-    res.json({ clientno, name, telno, street, city, email });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error updating client data");
-  } finally {
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    res.json({ success: true, message: 'All clients updated successfully!' });
+  } catch (error) {
+    console.error('Error updating clients:', error);
+    res.json({ success: false, message: 'Error updating clients' });
   }
 });
+
+async function updateClient(client) {
+  const { clientNo, telno, street, city, email } = client;
+  console.log(clientNo, telno, street, city, email);
+  const query = `
+    BEGIN
+      update_client_sp(:v_clientno, :v_telno, :v_street, :v_city, :v_email);
+    END;
+  `;
+
+  const binds = {
+    v_clientno: clientNo,
+    v_telno: telno,
+    v_street: street,
+    v_city: city,
+    v_email: email
+  }
+  
+  let connection;
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+    console.log(`Updating client: ${JSON.stringify(client)}`);
+    await connection.execute(query, binds);
+    console.log(`Successfully updated client: ${clientNo}`);
+  } catch (error) {
+    console.error(`Error updating client: ${clientNo}`, error);
+  } finally {
+    if (connection) {
+      await connection.close();
+    }
+  }
+  
+}
+
 // Start the server
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
