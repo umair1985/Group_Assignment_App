@@ -3,6 +3,21 @@
   <head>
     <title>Branch Main Menu</title>
     <link rel="stylesheet" href="/employeeMenu.css" />
+    <style>
+      table {
+        width: 80%;
+        margin: 20px auto;
+        background-color: white;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
     <h1>Branch Main Menu</h1>
@@ -10,5 +25,47 @@
       <a href="/branch" class="menu-option">View and Update Branch information</a>
       <a href="/createBranch" class="menu-option">Add a new branch</a>
     </div>
+    <table id="branchTable">
+      <thead>
+        <tr>
+          <th>Branch Number</th>
+          <th>Street</th>
+          <th>City</th>
+          <th>Postal Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchbranches() {
+      try {
+        const response = await fetch('/branches');
+        const branches = await response.json();
+
+        const tableBody = document.getElementById('branchTable').getElementsByTagName('tbody')[0];
+        tableBody.innerHTML = '';
+
+        branches.forEach(branch => {
+          console.log(branch);
+          const row = tableBody.insertRow();
+          row.innerHTML = `
+            <td>${branch[0]}</td>
+            <td>${branch[1]}</td>
+            <td>${branch[2]}</td>
+            <td>${branch[3]}</td>
+          `;
+        });
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      }
+    }
+
+    window.onload = fetchbranches;
+  </script>
+
   </body>
 </html>

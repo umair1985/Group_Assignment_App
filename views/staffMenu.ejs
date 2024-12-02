@@ -3,13 +3,84 @@
   <head>
     <title>Staff Main Menu</title>
     <link rel="stylesheet" href="/employeeMenu.css" />
+    <style>
+      table {
+        width: 80%;
+        margin: 20px auto;
+        background-color: white;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
     <h1>Employee Main Menu</h1>
     <div class="menu-container">
       <a href="/hire" class="menu-option">Hire a Staff Member</a>
       <a href="/update" class="menu-option">Update a Staff Member</a>
-      <a href="/terminate" class="menu-option">Terminate a Staff Member</a>
     </div>
+
+    <table id="staffTable">
+      <thead>
+        <tr>
+          <th>Staff Number</th>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Position</th>
+          <th>Sex</th>
+          <th>DOB</th>
+          <th>Salary</th>
+          <th>Branch Number</th>
+          <th>Telephone</th>
+          <th>Mobile</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows dynamically added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchStaff() {
+      try {
+        const response = await fetch('/staffs');
+        const staffs = await response.json();
+
+        const tableBody = document.getElementById('staffTable').getElementsByTagName('tbody')[0];
+        tableBody.innerHTML = '';
+
+        staffs.forEach(staff => {
+          console.log(staff);
+          const row = tableBody.insertRow();
+          row.innerHTML = `
+            <td>${staff[0]}</td>
+            <td>${staff[1]}</td>
+            <td>${staff[2]}</td>
+            <td>${staff[3]}</td>
+            <td>${staff[4]}</td>
+            <td>${staff[5]}</td>
+            <td>${staff[6]}</td>
+            <td>${staff[7]}</td>
+            <td>${staff[8]}</td>
+            <td>${staff[9]}</td>
+            <td>${staff[10]}</td>
+          `;
+        });
+      } catch (error) {
+        console.error('Error fetching staff:', error);
+      }
+    }
+
+    window.onload = fetchStaff;
+  </script>
+
   </body>
 </html>

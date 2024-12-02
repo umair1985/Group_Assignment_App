@@ -3,10 +3,8 @@ const bodyParser = require("body-parser");
 const oracledb = require("oracledb");
 const app = express();
 
-// Serve static files from the "public" directory
 app.use(express.static("public"));
 
-// Middleware
 app.use(bodyParser.json());
 app.set("view engine", "ejs");
 
@@ -18,31 +16,41 @@ const dbConfig = {
     "(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=myoracle12c.senecacollege.ca)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=oracle12c)))",
 };
 
-// Function to connect to Oracle DB
-async function connectToDB() {
-  try {
-    const connection = await oracledb.getConnection(dbConfig);
-    console.log("Connected to Oracle Database!");
-    return connection;
-  } catch (err) {
-    console.error("Database connection failed: " + err.message);
-    throw err;
-  }
-}
-
 // Home Page
 app.get("/", (req, res) => {
   res.render("index"); // Render the homepage
 });
 
-// Employee Menu Route
+// Staff Menu Route
 app.get("/staff", (req, res) => {
   res.render("staffMenu");
 });
 
+app.get('/staffs', async (req, res) => {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    const result = await connection.execute('SELECT * FROM dh_staff');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching staff:', error);
+    res.status(500).json({ error: 'Error fetching staff' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection:', err);
+      }
+    }
+  }
+});
+
 ////////////
 
-// Route to render the update form
+// Route to render the staff update form
 app.get("/update", async (req, res) => {
   let connection;
   try {
@@ -174,7 +182,6 @@ app.post('/hire', async (req, res) => {
   } catch (error) {
       console.error('Error executing procedure:', error);
 
-      // Send error response
       res.status(500).send('Error hiring staff member.');
   }
 });
@@ -259,6 +266,28 @@ app.get("/api/staff/:staffno", async (req, res) => {
 // Branch Menu Route
 app.get("/branchMenu", (req, res) => {
   res.render("branchMenu");
+});
+
+app.get('/branches', async (req, res) => {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    const result = await connection.execute('SELECT * FROM dh_branch');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching branches:', error);
+    res.status(500).json({ error: 'Error fetching branches' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection:', err);
+      }
+    }
+  }
 });
 
 app.get("/createBranch", (req, res) => {
@@ -379,6 +408,28 @@ app.put('/branch/update', async (req, res) => {
 // Route to Client Menu
 app.get("/client", (req, res) => {
   res.render("clientMenu");
+});
+
+app.get('/clients', async (req, res) => {
+  let connection;
+
+  try {
+    connection = await oracledb.getConnection(dbConfig);
+
+    const result = await connection.execute('SELECT * FROM dh_client');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ error: 'Error fetching clients' });
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error closing connection:', err);
+      }
+    }
+  }
 });
 
 // Route to Register New Client Form

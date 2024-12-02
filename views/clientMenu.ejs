@@ -42,6 +42,20 @@
       .button:hover {
         background-color: #b39ddb;
       }
+
+      table {
+        width: 80%;
+        margin: 20px auto;
+        background-color: white;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -51,6 +65,58 @@
         <a href="/newClient" class="button">Register New Client</a>
         <a href="/updateClient" class="button">Update Client</a>
       </div>
+      <table id="clientTable">
+        <thead>
+          <tr>
+            <th>Client Number</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>Email</th>
+            <th>Telephone Number</th>
+            <th>Preference Type</th>
+            <th>Max Rent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows dynamically added here -->
+        </tbody>
+      </table>
     </div>
+
+    <script>
+      async function fetchClients() {
+        try {
+          const response = await fetch('/clients');
+          const clients = await response.json();
+
+          const tableBody = document.getElementById('clientTable').getElementsByTagName('tbody')[0];
+          tableBody.innerHTML = '';
+
+          clients.forEach(client => {
+            console.log(client);
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+              <td>${client[0]}</td>
+              <td>${client[1]}</td>
+              <td>${client[2]}</td>
+              <td>${client[4]}</td>
+              <td>${client[5]}</td>
+              <td>${client[6]}</td>
+              <td>${client[3]}</td>
+              <td>${client[7]}</td>
+              <td>${client[8]}</td>
+            `;
+          });
+        } catch (error) {
+          console.error('Error fetching clients:', error);
+        }
+      }
+
+      // Fetch clients when the page loads
+      window.onload = fetchClients;
+    </script>
+
   </body>
 </html>
