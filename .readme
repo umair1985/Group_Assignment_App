@@ -1,0 +1,6 @@
+In order to run this application:
+1. please compile all .sql scripts inside the sql folder of the project
+2. modify the server.js file at line 13 and 14 and enter your db credentials within double quotes. line 13 for username and line 14 for password.
+3. Open the terminal inside the project folder and execute the following command: node server.js
+4. if the previous command did not work, please download and install node.js on your local machine by following these steps https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+5. The application should be started by now and will be accessible at http://localhost:3000
