@@ -158,10 +158,10 @@
 
       async function addClientUpdate() {
         const clientno = document.getElementById("clientno").value;
-        const telno = document.getElementById("telno").value || null;
-        const street = document.getElementById("street").value || null;
-        const city = document.getElementById("city").value || null;
-        const email = document.getElementById("email").value || null;
+        const telno = document.getElementById("telno").value;
+        const street = document.getElementById("street").value;
+        const city = document.getElementById("city").value;
+        const email = document.getElementById("email").value;
 
         const response = await fetch("/addClientUpdate", {
           method: "POST",
@@ -177,10 +177,10 @@
           row.innerHTML = `
                         <td>${data.clientno}</td>
                         <td>${data.name}</td>
-                        <td>${data.telno || "N/A"}</td>
-                        <td>${data.street || "N/A"}</td>
-                        <td>${data.city || "N/A"}</td>
-                        <td>${data.email || "N/A"}</td>
+                        <td>${data.telno}</td>
+                        <td>${data.street}</td>
+                        <td>${data.city }</td>
+                        <td>${data.email}</td>
                     `;
 
           tableBody.appendChild(row);
